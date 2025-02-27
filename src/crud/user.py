@@ -8,6 +8,11 @@ from src.schemas.user import User
 from src.utils.hashing import bcrypt
 
 
+def get_all(db: Session):
+    users = db.query(UserModel).all()
+    return users
+
+
 def get(user_id: int, db: Session):
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
     if not user:
