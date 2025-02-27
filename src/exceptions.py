@@ -21,3 +21,10 @@ class CredentialsError(Exception):
         self.status_code = status_code
         self.headers = {"WWW-Authenticate": "Bearer"}
         super().__init__(detail)
+
+
+class UserAlreadyExistsError(Exception):
+    def __init__(self, detail: str = "User already exists", status_code: int = status.HTTP_409_CONFLICT):
+        self.detail = detail
+        self.status_code = status_code
+        super().__init__(detail)

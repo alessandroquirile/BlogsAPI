@@ -29,12 +29,12 @@ def delete(blog_id: int, db: Session, current_user: User):
     if not my_blog:
         raise BlogNotFoundError(f"Blog {blog_id} not found")
 
-    if my_blog.written_by.username != current_user.username:
-        raise UnauthorizedError(f"User {current_user.username} is not authorized to delete a blog for another person")
+    if current_user.is_admin or my_blog.written_by == current_user:
+        db.delete(my_blog)
+        db.commit()
+        return {"message": "Blog deleted successfully"}
 
-    db.delete(my_blog)
-    db.commit()
-    return "deleted"
+    raise UnauthorizedError(f"User {current_user.username} is not authorized to delete this blog")
 
 
 def update(blog_id: int, request: Blog, db: Session, current_user: User = Depends(get_current_user)):
@@ -49,7 +49,7 @@ def update(blog_id: int, request: Blog, db: Session, current_user: User = Depend
 
     my_blog.update(request.model_dump())
     db.commit()
-    return "updated"
+    return {"message": "Blog updated successfully"}
 
 
 def get(blog_id: int, db: Session):

@@ -9,6 +9,7 @@ class User(BaseModel):
     username: str
     email: str
     password: str
+    is_admin: bool = False
 
 
 class UserSummary(BaseModel):
@@ -20,6 +21,7 @@ class UserSummary(BaseModel):
 class ShowUser(BaseModel):
     username: str
     email: str
+    is_admin: bool
     blogs: List["Blog"]  # Stesso nome della relationship in models
 
     model_config = ConfigDict(from_attributes=True)

@@ -1,6 +1,8 @@
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from src.exceptions import UserAlreadyExistsError
 from src.models.user import User as UserModel
 from src.schemas.user import User
 from src.utils.hashing import bcrypt
@@ -14,9 +16,12 @@ def get(user_id: int, db: Session):
 
 
 def create(request: User, db: Session):
-    hashed_password = bcrypt(request.password)
-    new_user = UserModel(username=request.username, email=request.email, password=hashed_password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    try:
+        hashed_password = bcrypt(request.password)
+        new_user = UserModel(username=request.username, email=request.email, password=hashed_password)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
+    except IntegrityError:
+        raise UserAlreadyExistsError
