@@ -1,9 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.crud import blog
+from src.exceptions import UnauthorizedError
 from src.schemas.blog import Blog, ShowBlog
 from src.schemas.user import User
 from src.utils.database import get_db
@@ -29,7 +30,7 @@ async def get_blog(blog_id: int, db: Session = Depends(get_db)):
 @router.post("/create-blog", status_code=status.HTTP_201_CREATED)
 async def create_blog(request: Blog, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if not current_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user authentication")
+        raise UnauthorizedError
     return blog.create(request, db, current_user)
 
 
@@ -37,12 +38,12 @@ async def create_blog(request: Blog, db: Session = Depends(get_db), current_user
 async def update_blog(blog_id: int, request: Blog, db: Session = Depends(get_db),
                       current_user: User = Depends(get_current_user)):
     if not current_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user authentication")
+        raise UnauthorizedError
     return blog.update(blog_id, request, db, current_user)
 
 
 @router.delete("/{blog_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_blog(blog_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if not current_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user authentication")
+        raise UnauthorizedError
     return blog.delete(blog_id, db, current_user)

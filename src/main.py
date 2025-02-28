@@ -1,15 +1,20 @@
 from fastapi import FastAPI
 from mangum import Mangum
+from starlette.middleware.cors import CORSMiddleware
 
 from src.handlers import init_exception_handlers
 from src.routers import blog, user, authentication
-from src.utils.database import Base
-from src.utils.database import engine
 
 app = FastAPI()
 handler = Mangum(app)
 
-Base.metadata.create_all(bind=engine)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 init_exception_handlers(app)
 

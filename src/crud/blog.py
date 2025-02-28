@@ -15,11 +15,9 @@ def get_all(db: Session):
 
 def create(request: Blog, db: Session, current_user: User):
     new_blog = BlogModel(title=request.title, description=request.description, user_id=current_user.id)
-
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
-
     return new_blog
 
 
