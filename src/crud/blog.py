@@ -25,7 +25,7 @@ def delete(blog_id: int, db: Session, current_user: User):
     my_blog = db.query(BlogModel).filter(BlogModel.id == blog_id).first()
 
     if not my_blog:
-        raise BlogNotFoundError(f"Blog {blog_id} not found")
+        raise BlogNotFoundError(blog_id)
 
     if current_user.is_admin or my_blog.written_by == current_user:
         db.delete(my_blog)
@@ -40,7 +40,7 @@ def update(blog_id: int, request: Blog, db: Session, current_user: User = Depend
     blog_instance = my_blog.first()
 
     if blog_instance is None:
-        raise BlogNotFoundError(f"Blog {blog_id} not found")
+        raise BlogNotFoundError(blog_id)
 
     if blog_instance.written_by.username != current_user.username:
         raise UnauthorizedError(f"User {current_user.username} is not authorized to update a blog for another person")
@@ -53,5 +53,5 @@ def update(blog_id: int, request: Blog, db: Session, current_user: User = Depend
 def get(blog_id: int, db: Session):
     my_blog = db.query(BlogModel).filter(BlogModel.id == blog_id).first()
     if not my_blog:
-        raise BlogNotFoundError(f"Blog {blog_id} not found")
+        raise BlogNotFoundError(blog_id)
     return my_blog

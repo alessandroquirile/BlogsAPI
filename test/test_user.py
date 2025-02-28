@@ -1,5 +1,5 @@
 import pytest
-from fastapi import status  # Import status module
+from fastapi import status
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
@@ -83,10 +83,11 @@ def test_get_user(db_session):
 
 
 def test_get_user_not_found(db_session):
-    response = client.get("/users/9999")  # Non-existent user ID
+    user_id = 9999
+    response = client.get(f"/users/{user_id}")  # Non-existent user ID
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
     data = response.json()
-    assert data["detail"] == "Not Found"
+    assert data["detail"] == f"User id={user_id} not found"
 
 
 def test_get_all_users(db_session):
@@ -176,4 +177,4 @@ def test_get_blog_not_found(db_session):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
     data = response.json()
-    assert data["detail"] == f"Blog {blog_id} not found"
+    assert data["detail"] == f"Blog id={blog_id} not found"

@@ -13,8 +13,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     token_data = verify_token(token)
     user = db.query(User).filter(User.username == token_data.username).first()
-
     if user is None:
         raise CredentialsError
-
     return user
