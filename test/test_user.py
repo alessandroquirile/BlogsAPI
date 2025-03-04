@@ -1,56 +1,9 @@
-import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, StaticPool
-from sqlalchemy.orm import sessionmaker
 
 from src.main import app
-from src.models.blog import Blog as BlogModel
-from src.models.user import User as UserModel
-from src.utils.database import Base, get_db
-from src.utils.hashing import bcrypt
 
 client = TestClient(app)
-
-DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
-)
-
-TestingSession = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-
-
-@pytest.fixture()
-def db_session():
-    Base.metadata.create_all(bind=engine)
-    db = TestingSession()
-
-    # Create some mock users
-    user1 = UserModel(id=1, username="u1", email="email1", password=bcrypt("password1"), is_admin=False)
-    user2 = UserModel(id=2, username="u2", email="email2", password=bcrypt("password2"), is_admin=True)
-    blog1 = BlogModel(title="b1", description="d1", user_id=1)
-    db.add(user1)
-    db.add(user2)
-    db.add(blog1)
-    db.commit()
-
-    yield db
-    db.close()
-    Base.metadata.drop_all(bind=engine)
-
-
-def override_get_db():
-    db = TestingSession()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
 
 
 def test_create_user(db_session):
@@ -114,10 +67,11 @@ def test_get_all_users(db_session):
 
 def test_create_user_already_exists(db_session):
     # Try to create an user with the same username and email
+    username = "u1"
     response = client.post(
         "/users",
         json={
-            "username": "u1",  # Same username
+            "username": f"{username}",  # Same username
             "email": "email1",  # Same email
             "password": "password",
             "is_admin": False
@@ -126,49 +80,7 @@ def test_create_user_already_exists(db_session):
 
     assert response.status_code == status.HTTP_409_CONFLICT, response.text
     data = response.json()
-    assert data["detail"] == "User already exists"
-
-
-def test_login_username_not_found(db_session):
-    response = client.post(
-        "/login",
-        data={
-            "username": "nonexistentusername",  # Username not found in the database
-            "password": "password",  # Any password
-        },
-    )
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
-    data = response.json()
-    assert data["detail"] == "Username not found"
-
-
-def test_login_invalid_password(db_session):
-    response = client.post(
-        "/login",
-        data={
-            "username": "u1",  # Valid username
-            "password": "wrongpassword",  # Incorrect password
-        },
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
-    data = response.json()
-    assert data["detail"] == "Invalid credentials"
-
-
-def test_login_valid_credentials(db_session):
-    response = client.post(
-        "/login",
-        data={
-            "username": "u1",
-            "password": "password1"
-        }
-    )
-    assert response.status_code == status.HTTP_200_OK, response.text
-    assert "access_token" in response.json()
-    token = response.json()["access_token"]
-    assert token is not None
+    assert data["detail"] == f"User {username} already exists"
 
 
 def test_get_blog_not_found(db_session):

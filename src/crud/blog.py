@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from src.exceptions import BlogNotFoundError, UnauthorizedError
+from src.exceptions import BlogNotFoundError, ForbiddenError
 from src.models.blog import Blog as BlogModel
 from src.schemas.blog import Blog
 from src.schemas.user import User
@@ -32,7 +32,8 @@ def delete(blog_id: int, db: Session, current_user: User):
         db.commit()
         return {"message": "Blog deleted successfully"}
 
-    raise UnauthorizedError(f"User {current_user.username} is not authorized to delete this blog")
+    raise ForbiddenError(current_user.username)
+    # raise UnauthorizedError(f"User {current_user.username} is not authorized to delete this blog")
 
 
 def update(blog_id: int, request: Blog, db: Session, current_user: User = Depends(get_current_user)):
@@ -43,7 +44,8 @@ def update(blog_id: int, request: Blog, db: Session, current_user: User = Depend
         raise BlogNotFoundError(blog_id)
 
     if blog_instance.written_by.username != current_user.username:
-        raise UnauthorizedError(f"User {current_user.username} is not authorized to update a blog for another person")
+        raise ForbiddenError(current_user.username)
+        # raise UnauthorizedError(f"User {current_user.username} is not authorized to update a blog for another person")
 
     my_blog.update(request.model_dump())
     db.commit()

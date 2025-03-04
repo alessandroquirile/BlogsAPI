@@ -29,4 +29,4 @@ def create(request: User, db: Session):
         db.refresh(new_user)
         return new_user
     except IntegrityError:
-        raise UserAlreadyExistsError
+        raise UserAlreadyExistsError(request.username)

@@ -2,6 +2,10 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from src.exceptions import BlogNotFoundError, UnauthorizedError, UserAlreadyExistsError, UserNotFoundError
+from src.exceptions import ForbiddenError
+
+
+# from src.exceptions import CredentialsError
 
 
 def init_exception_handlers(app):
@@ -11,6 +15,20 @@ def init_exception_handlers(app):
             status_code=exc.status_code,
             content={"detail": exc.detail}
         )
+
+    @app.exception_handler(ForbiddenError)
+    async def forbidden_handler(request: Request, exc: ForbiddenError):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail}
+        )
+
+    """@app.exception_handler(CredentialsError)
+    async def unauthorized_handler(request: Request, exc: CredentialsError):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail}
+        )"""
 
     @app.exception_handler(UserNotFoundError)
     async def user_not_found_handler(request: Request, exc: UserNotFoundError):
@@ -23,6 +41,7 @@ def init_exception_handlers(app):
     async def unauthorized_handler(request: Request, exc: UnauthorizedError):
         return JSONResponse(
             status_code=exc.status_code,
+            headers=exc.headers,
             content={"detail": exc.detail}
         )
 
