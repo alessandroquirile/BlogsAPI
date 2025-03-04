@@ -30,16 +30,15 @@ class UnauthorizedError(Exception):
         super().__init__(detail)
 
 
-"""class CredentialsError(Exception):
-    def __init__(self, detail: str = "Could not validate credentials"):
-        self.detail = detail
-        self.status_code = status.HTTP_401_UNAUTHORIZED
-        self.headers = {"WWW-Authenticate": "Bearer"}
-        super().__init__(detail)"""
-
-
 class UserAlreadyExistsError(Exception):
     def __init__(self, username: str):
         self.detail = f"User {username} already exists"
         self.status_code = status.HTTP_409_CONFLICT
         super().__init__(username)
+
+
+class UnprocessableEntityError(Exception):
+    def __init__(self, detail: str = "Unprocessable Entity"):
+        self.detail = detail
+        self.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        super().__init__(detail)

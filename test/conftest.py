@@ -1,11 +1,11 @@
-# conftest.py
 import pytest
 from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
-from src.utils.database import Base, get_db
+
 from src.main import app
-from src.models.user import User as UserModel
 from src.models.blog import Blog as BlogModel
+from src.models.user import User as UserModel
+from src.utils.database import Base, get_db
 from src.utils.hashing import bcrypt
 
 DATABASE_URL = "sqlite:///:memory:"
