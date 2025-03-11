@@ -17,7 +17,6 @@ router = APIRouter(
 async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     if not request.username or not request.password:
         raise UnprocessableEntityError
-
     user = db.query(User).filter(User.username == request.username).first()
     if not user:
         raise UserNotFoundError(user_id=request.username)

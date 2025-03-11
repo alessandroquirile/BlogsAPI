@@ -61,9 +61,6 @@ def test_login_missing_username(db_session):
     )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
-    """data = response.json()
-    assert "detail" in data
-    assert "field required" in data["detail"][0]["msg"]"""
 
 
 def test_login_missing_password(db_session):
@@ -82,15 +79,6 @@ def test_login_empty_request(db_session):
     response = client.post(
         "/login",
         data={}  # Empty request
-    )
-
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
-
-
-def test_login_both_username_and_password_missing(db_session):
-    response = client.post(
-        "/login",
-        data={}  # Both username and password missing
     )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY, response.text
