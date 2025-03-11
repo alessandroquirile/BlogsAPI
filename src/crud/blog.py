@@ -1,8 +1,11 @@
+import asyncio
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from src.exceptions import BlogNotFoundError, ForbiddenError
 from src.models.blog import Blog as BlogModel
+from src.routers.websockets import broadcast_new_blog
 from src.schemas.blog import Blog
 from src.schemas.user import User
 from src.utils.oauth2 import get_current_user
@@ -18,6 +21,7 @@ def create(request: Blog, db: Session, current_user: User):
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
+    asyncio.create_task(broadcast_new_blog(new_blog))
     return new_blog
 
 

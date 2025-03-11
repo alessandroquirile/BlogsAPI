@@ -3,7 +3,7 @@ from mangum import Mangum
 from starlette.middleware.cors import CORSMiddleware
 
 from src.handlers import init_exception_handlers
-from src.routers import blog, user, authentication
+from src.routers import blog, user, authentication, websockets
 
 app = FastAPI()
 handler = Mangum(app)
@@ -21,3 +21,5 @@ init_exception_handlers(app)
 app.include_router(blog.router)
 app.include_router(user.router)
 app.include_router(authentication.router)
+
+app.include_router(websockets.router)
