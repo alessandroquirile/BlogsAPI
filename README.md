@@ -43,3 +43,25 @@ To run the application locally, follow these steps:
 3. **Access the API**:
    The application will be running at `http://localhost:8000`. You can also access the Swagger UI documentation at
    `http://localhost:8000/docs` for easy interaction with the API.
+
+## 📦 Deploy on AWS Lambda
+
+To deploy the Blog API on **AWS Lambda**, you can package your application with its dependencies into a `.zip` file and upload it as a Lambda function artifact.
+
+Follow these steps:
+
+1. **Install the dependencies into a `dependencies/` folder for the AWS Lambda-compatible platform**:
+   ```bash
+   pip3 install -r requirements.txt \
+     --platform manylinux2014_x86_64 \
+     --target=dependencies \
+     --implementation cp \
+     --python-version 3.12 \
+     --only-binary=:all: \
+     --upgrade openai
+
+2. **Create a .zip archive containing the dependencies**:: `(cd dependencies; zip ../aws_lambda_artifact.zip -r .)`
+
+3. **Add the `src/` folder to the archive**: `zip aws_lambda_artifact.zip -u -r src`
+
+4. **Upload `aws_lambda_artifact.zip` to AWS Lambda using the AWS Console, AWS CLI, or an infrastructure-as-code tool like Terraform or AWS SAM**.
